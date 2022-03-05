@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import com.example.demo.model.Comentario;
 import com.example.demo.model.Post;
 import com.example.demo.model.User;
-import com.example.demo.repository.ComentarioRepository;
 import com.example.demo.repository.PostRepository;
 
 /**
@@ -22,8 +21,6 @@ public class PostService {
 	@Autowired
 	private PostRepository repository;
 	@Autowired
-	private ComentarioRepository repositorioComentario;
-	@Autowired
 	private UsuarioService servicioUsuario;
 	
 	/**
@@ -32,7 +29,7 @@ public class PostService {
 	 * @return Post creado
 	 */
 	public Post crearPost(Post post) {
-		User user = post.getAuthor();
+		User user = this.servicioUsuario.getUserbyUserName(post.getAuthor().getUserName());
 		user.setNumberOfPosts(user.getNumberOfPosts()+1);
 		this.servicioUsuario.editUsuario(user);
 		return this.repository.save(post);
@@ -47,6 +44,8 @@ public class PostService {
 	 */
 	public Post modifyPost(Post post, Long id) {
 		post.setId(id);
+		post.setAuthor(this.repository.findById(id).get().getAuthor());
+		post.setComments(this.repository.findById(id).get().getComments());
 		return this.repository.save(post);
 	}
 	
@@ -77,6 +76,7 @@ public class PostService {
 	 */
 	public Comentario modifyComentario(Post post,Long idComentario,  Comentario comentarioModificado) {
 		comentarioModificado.setIdComment(idComentario);
+		post.getComments().remove(comentarioModificado);
 		post.addComentario(comentarioModificado);
 		this.repository.save(post);
 		return comentarioModificado;
@@ -89,7 +89,7 @@ public class PostService {
 	 */
 	public Comentario eliminarComentario(Post post, Comentario comentarioAEliminar) {
 		post.getComments().remove(comentarioAEliminar);
-		User user = comentarioAEliminar.getAuthor();
+		User user = this.servicioUsuario.getUserbyUserName(post.getAuthor().getUserName());
 		user.setNumberOfComents(user.getNumberOfComents()-1);
 		this.servicioUsuario.editUsuario(user);
 		this.repository.save(post);
@@ -105,7 +105,7 @@ public class PostService {
 	 */
 	public Comentario crearComentario(Post post, Comentario comentarioNuevo) {
 		post.addComentario(comentarioNuevo);
-		User user = comentarioNuevo.getAuthor();
+		User user = this.servicioUsuario.getUserbyUserName(comentarioNuevo.getAuthor().getUserName());
 		user.setNumberOfComents(user.getNumberOfComents()+1);
 		this.servicioUsuario.editUsuario(user);
 		this.repository.save(post);

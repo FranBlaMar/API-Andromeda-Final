@@ -38,6 +38,14 @@ public class UsuarioService implements UserDetailsService {
     }
     
     /**
+     * Metodo para obtener un usuario desde su nombre de usuario
+     * @param userName nombre de usuario buscado
+     * @return Usuario buscado
+     */
+    public User getUserbyUserName( String userName) {
+    	return this.repositorio.findById(userName).get();
+    }
+    /**
      * Metodo para modificar un usuario
      * @param usuarioModificado
      * @return El usuario modificado

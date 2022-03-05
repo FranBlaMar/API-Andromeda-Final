@@ -14,6 +14,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -42,6 +45,7 @@ public class Post {
 	@Column (name="body", nullable = false,length = 5000)
 	private String body;
 	
+	@JsonIgnore
 	@ManyToOne
 	@JoinColumn(name="user_post")
 	private User author;

@@ -79,7 +79,21 @@ public class WikiController {
 	 * @return la excepción modificada por nosotros
 	 */
 	 @ExceptionHandler(InfoNotFoundException.class)
-		public ResponseEntity<ErroresManager> handleUsuarioNoEncontrado(InfoNotFoundException ex) {
+		public ResponseEntity<ErroresManager> handleInfoNoEncontrada(InfoNotFoundException ex) {
+			ErroresManager apiError = new ErroresManager();
+			apiError.setEstadoPeticion(HttpStatus.NOT_FOUND);
+			apiError.setFecha(LocalDateTime.now());
+			apiError.setMensajeDeError(ex.getMessage());
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
+	}
+	 
+	 /**
+	 * Metodo handler de exception de apartado no encontrado
+	 * @param ex excepción lanzada
+	 * @return la excepción modificada por nosotros
+	 */
+	 @ExceptionHandler(InfoNotFoundException.class)
+		public ResponseEntity<ErroresManager> handleApartadoNoEncontrada(ApartadoNotFoundException ex) {
 			ErroresManager apiError = new ErroresManager();
 			apiError.setEstadoPeticion(HttpStatus.NOT_FOUND);
 			apiError.setFecha(LocalDateTime.now());

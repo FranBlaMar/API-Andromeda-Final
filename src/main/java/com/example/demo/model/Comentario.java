@@ -1,7 +1,6 @@
 package com.example.demo.model;
 
-import java.time.LocalDate;
-import java.util.List;
+
 import java.util.Objects;
 
 import javax.persistence.Column;
@@ -36,6 +35,7 @@ public class Comentario {
 	
 	@Column (name="cuerpoComentario", nullable = false,length = 2500)
 	private String comment;
+	
 	
 	@ManyToOne
 	private User author;

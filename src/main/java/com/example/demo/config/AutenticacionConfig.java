@@ -16,12 +16,18 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.example.demo.service.UsuarioService;
 import com.example.demo.security.FiltroJWT;
 
+/**
+ * Clase para configurar jwt
+ * @author Usuario
+ *
+ */
 @Configuration
 @EnableWebSecurity
 public class AutenticacionConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired private FiltroJWT filtro;
     @Autowired private UsuarioService servicio;
+
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {

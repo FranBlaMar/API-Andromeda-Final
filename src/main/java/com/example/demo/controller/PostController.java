@@ -1,9 +1,13 @@
 package com.example.demo.controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,10 +16,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.error.ComentarioNotFoundException;
+import com.example.demo.error.ErroresManager;
 import com.example.demo.error.PostNotFoundException;
 import com.example.demo.model.Comentario;
 import com.example.demo.model.Post;
-import com.example.demo.repository.ComentarioRepository;
 import com.example.demo.repository.PostRepository;
 import com.example.demo.service.PostService;
 
@@ -29,8 +33,7 @@ public class PostController {
 
 	@Autowired
 	private PostRepository repositorio;
-	@Autowired
-	private ComentarioRepository repositorioComentario;
+
 	@Autowired
 	private PostService servicio;
 	
@@ -49,8 +52,8 @@ public class PostController {
 	 * @return Post guardado en la base de datos
 	 */
 	@PostMapping("/post")
-	public Post setPost(@RequestBody Post postNuevo) {
-		return this.servicio.crearPost(postNuevo);
+	public ResponseEntity<Post> setPost(@RequestBody Post postNuevo) {
+		return ResponseEntity.status(HttpStatus.CREATED).body(this.servicio.crearPost(postNuevo));
 	}
 	
 	/**
@@ -76,8 +79,8 @@ public class PostController {
 	 * @return Post modificado
 	 */
 	@PutMapping("/post/{idPost}")
-	public Post modifyPost(@RequestBody Post postModify, @PathVariable Long idPost) {
-		return this.servicio.modifyPost(postModify, idPost);
+	public ResponseEntity<Post> modifyPost(@RequestBody Post postModify, @PathVariable Long idPost) {
+		return ResponseEntity.status(HttpStatus.CREATED).body( this.servicio.modifyPost(postModify, idPost));
 	}
 
 	
@@ -129,13 +132,12 @@ public class PostController {
 	 * @throws ComentarioNotFoundException
 	 */
 	@PutMapping("/post/{idPost}/comentario/{idComent}")
-	public Comentario modificarComentarioPorId(@PathVariable Long idPost, @PathVariable Long idComent, @RequestBody Comentario comentarioModificado) throws PostNotFoundException, ComentarioNotFoundException{
+	public  ResponseEntity<Comentario> modificarComentarioPorId(@PathVariable Long idPost, @PathVariable Long idComent, @RequestBody Comentario comentarioModificado) throws PostNotFoundException, ComentarioNotFoundException{
 		Post post = this.repositorio.findById(idPost).orElse(null);
 		if(post == null) {
 			throw new PostNotFoundException();
 		}
-		
-		return this.servicio.modifyComentario(post, idComent, comentarioModificado);
+		return ResponseEntity.status(HttpStatus.CREATED).body(this.servicio.modifyComentario(post, idComent, comentarioModificado));
 	}
 	
 	/**
@@ -169,12 +171,40 @@ public class PostController {
 	 * @throws PostNotFoundException
 	 */
 	@PostMapping("/post/{idPost}/comentario")
-	public Comentario crearComentario(@PathVariable Long idPost, @RequestBody Comentario comentarioNuevo) throws PostNotFoundException{
+	public ResponseEntity<Comentario> crearComentario(@PathVariable Long idPost, @RequestBody Comentario comentarioNuevo) throws PostNotFoundException{
 		Post post = this.repositorio.findById(idPost).orElse(null);
 		if(post == null) {
 			throw new PostNotFoundException();
 		}
-		return this.servicio.crearComentario(post, comentarioNuevo);
+		return ResponseEntity.status(HttpStatus.CREATED).body(this.servicio.crearComentario(post, comentarioNuevo));
+	}
+	
+	
+	/**
+	 * Metodo handler de exception de comentarios no encontrados
+	 * @param ex excepción lanzada
+	 * @return la excepción modificada por nosotros
+	 */
+	@ExceptionHandler(ComentarioNotFoundException.class)
+	public ResponseEntity<ErroresManager> handleComentarioNoEncontrado(ComentarioNotFoundException ex) {
+		ErroresManager apiError = new ErroresManager();
+		apiError.setEstadoPeticion(HttpStatus.NOT_FOUND);
+		apiError.setFecha(LocalDateTime.now());
+		apiError.setMensajeDeError(ex.getMessage());
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
+	}
+	/**
+	 * Metodo handler de exception de posts no encontrados
+	 * @param ex excepción lanzada
+	 * @return la excepción modificada por nosotros
+	 */
+	@ExceptionHandler(PostNotFoundException.class)
+	public ResponseEntity<ErroresManager> handlePostNoEncontrado(PostNotFoundException ex) {
+		ErroresManager apiError = new ErroresManager();
+		apiError.setEstadoPeticion(HttpStatus.NOT_FOUND);
+		apiError.setFecha(LocalDateTime.now());
+		apiError.setMensajeDeError(ex.getMessage());
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
 	}
 	
 }
