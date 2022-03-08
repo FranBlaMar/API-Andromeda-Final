@@ -181,7 +181,6 @@ public class AndromedaApiApplication {
 			p1.addComentario(c1);
 			p1.addComentario(c2);
 			repositorioPost.saveAll(Arrays.asList(p1,p2,p3,p4));
-			
 			 
 		};
 	}
